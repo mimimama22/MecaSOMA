@@ -82,7 +82,7 @@ protected:
 
 protected:
 	/** Called for interaction input */
-	void OnInteractstart(const FInputActionValue& InputActionValue);
+	void OnInteract(const FInputActionValue& InputActionValue);
 	/** Called for interaction input */
 	void OnInteractcomplete();
 	// APawn interface

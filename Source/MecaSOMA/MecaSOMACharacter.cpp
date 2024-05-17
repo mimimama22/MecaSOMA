@@ -77,7 +77,7 @@ void AMecaSOMACharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMecaSOMACharacter::Look);
 
 		// Interaction
-		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this, &AMecaSOMACharacter::OnInteractstart);
+		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Triggered, this, &AMecaSOMACharacter::OnInteract);
 		EnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Completed, this, &AMecaSOMACharacter::OnInteractcomplete);
 	}
 	else
@@ -105,27 +105,21 @@ void AMecaSOMACharacter::Look(const FInputActionValue& Value)
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	if (Controller != nullptr)
+	if (Controller != nullptr && bIsInteracting == false)
 	{
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
-
-	if(bIsInteracting)
+	else
 	{
-		if(InteractableActor)
-		{
-			IInteractInterface::Execute_Interact(InteractableActor, LookAxisVector.Y, this);
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Interacting with: %f"), LookAxisVector.Y));
-		}
-		
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Interacting with: %f"), LookAxisVector.Y));
 	}
 
 	
 }
 
-void AMecaSOMACharacter::OnInteractstart(const FInputActionValue& InputActionValue)
+void AMecaSOMACharacter::OnInteract(const FInputActionValue& InputActionValue)
 {
 	FHitResult HitResult;
 	FVector Start = FirstPersonCameraComponent->GetComponentLocation();
@@ -147,14 +141,11 @@ void AMecaSOMACharacter::OnInteractstart(const FInputActionValue& InputActionVal
 
 	if (HitResult.bBlockingHit)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Hit: %s"), *HitResult.GetActor()->GetName()));
-		if(HitResult.GetActor()->GetClass())
-		{
-			IInteractInterface::Execute_Interact(InteractableActor, 0, this);
-			InteractableActor = HitResult.GetActor();
-			bIsInteracting = true;
-		}
-
+		
+		bIsInteracting = HitResult.bBlockingHit;
+		if (HitResult.GetActor())
+			//IInteractInterface::Execute_Interact(HitResult.GetActor(), 0, this);
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Hit: %s"), *HitResult.GetActor()->GetName()));
 		
 	}
 
