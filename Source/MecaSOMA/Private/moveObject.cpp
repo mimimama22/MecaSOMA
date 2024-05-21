@@ -16,8 +16,11 @@ AmoveObject::AmoveObject()
 
 void AmoveObject::MoveObject_Implementation(float Value, AActor* Actor)
 {
-	FVector3d NewLocation = Actor->GetActorLocation() + FVector3d(Value,0, 0);
-	SetActorLocation(NewLocation);
+	FVector3d NewLocation = MeshObject->GetRelativeLocation() + FVector3d(Value,0, 0);
+
+	//NewLocation = FMath::Clamp(NewLocation, FVector3d(0, 0, 0), FVector3d(100, 100, 100));
+	MeshObject->SetRelativeLocation(NewLocation);
+	
 }
 
 void AmoveObject::Interact_Implementation(float Value, AActor* Actor)

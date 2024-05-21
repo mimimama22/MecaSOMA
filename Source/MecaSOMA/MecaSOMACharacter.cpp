@@ -103,7 +103,7 @@ void AMecaSOMACharacter::Move(const FInputActionValue& Value)
 void AMecaSOMACharacter::Look(const FInputActionValue& Value)
 {
 	// input is a Vector2D
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	LookAxisVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr && bIsInteracting == false)
 	{
@@ -144,9 +144,12 @@ void AMecaSOMACharacter::OnInteract(const FInputActionValue& InputActionValue)
 		
 		bIsInteracting = HitResult.bBlockingHit;
 		if (HitResult.GetActor())
-			//IInteractInterface::Execute_Interact(HitResult.GetActor(), 0, this);
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Hit: %s"), *HitResult.GetActor()->GetName()));
+			if(HitResult.GetActor()->GetClass()->ImplementsInterface(UInteractInterface::StaticClass()))
+			{
+				IInteractInterface::Execute_Interact(HitResult.GetActor(),LookAxisVector.X , this);
+			}
 		
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Hit: %s"), *HitResult.GetActor()->GetName()));
 	}
 
 	
